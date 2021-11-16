@@ -1,0 +1,133 @@
+dongkap:
+  signature:
+    private-key: ${DONGKAP_SIGNATURE_PRIVATE_KEY:UHU3NG42QjNuNHI=}
+    public-key: ${DONGKAP_SIGNATURE_PUBLIC_KEY:dc20c81f-1441-4f83-af98-454053772409}
+    aes:
+      secret-key: ${DONGKAP_AES_SECRET_KEY:UHVsYW5nQjNuNHI=}
+    param-key: X-DONGKAP-Key
+    param-timestamp: X-DONGKAP-Timestamp
+    param-signature: X-DONGKAP-Signature
+  locale: id-ID
+
+spring:
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:P@ssw0rd}
+    database: ${REDIS_DATABASE:1}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:satpol}
+    username: ${DATABASE_USERNAME:dongkap}
+    password: ${DATABASE_PASSWORD:P@ssw0rd}
+    platform: postgres
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      pool-name: MasterDongkapPool
+      connection-test-query: SELECT 1
+      leak-detection-threshold: 30000
+      connection-timeout: 30000
+      idle-timeout: 120000
+      max-lifetime: 720000
+      maximum-pool-size: 50
+      minimum-idle: 5
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
+    database: POSTGRESQL
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+        temp:
+          use_jdbc_metadata_defaults: false
+    show-sql: false
+    hibernate:
+      connection:
+        provider_class: com.zaxxer.hikari.hibernate.HikariConnectionProvider
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+
+management:
+  security:
+    enabled: false
+
+security:
+  oauth2:
+    resource:
+      filter-order: 3
+      jwt:
+        key-value: CfZKBe7IZHxBCgH9Dz49
+      prefer-token-info: true
+
+async-thread-pool:
+  corePoolSize: 20
+  maximumPoolSize: 1000
+  keepAliveTime: 30
+  queueCapacity: 200
+  threadPrefix: DONGKAP_EXEC-
+
+ribbon:
+  eureka:
+    enabled: false
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 15000
+        readTimeout: 15000
+        errorDecoder: com.dongkap.feign.decoder.FeignErrorDecoder
+hystrix:
+  shareSecurityContext: true
+  command:
+    default:
+      circuitBreaker:
+        enabled: true
+        forceOpen: false
+        forceClosed: false
+        requestVolumeThreshold: 20
+        sleepWindowInMilliseconds: 5000
+        errorThresholdPercentage: 50
+      requestCache:
+        enabled: true
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 15000
+            interruptOnTimeout: true
+            interruptOnFutureCancel: false
+          semaphore:
+            maxConcurrentRequests: 10
+      fallback:
+        enabled: true
+        isolation:
+          semaphore:
+            maxConcurrentRequests: 10
+
+---
+spring:
+  profiles: development
+  jpa:
+    show-sql: true
+
+---
+spring:
+  profiles: production
+  jpa:
+    show-sql: false

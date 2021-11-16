@@ -1,0 +1,55 @@
+server:
+  port: ${PORT:8082}
+  servlet:
+    context-path: /api/master
+
+spring:
+  application:
+    name: satpol-master
+  messages:
+    basename: i18n/messages
+    cache-seconds: -1
+    encoding: UTF-8
+  aop:
+    proxy-target-class: true
+  mvc:
+    locale: en_US
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled: false
+      discovery:
+        enabled: false
+feign:
+  compression:
+    request:
+      enabled: false
+    response:
+      enabled: true
+  hystrix:
+    enabled: true
+  client:
+    config:
+      default:
+        loggerLevel: full
+retryer:
+  disable: false
+  backoff: 5000
+  maxAttempts: 3
+
+logging:
+  level:
+    root: INFO
+    org.apache: INFO
+    com.netflix: INFO
+    com.netflix.loadbalancer.reactive.LoadBalancerCommand: DEBUG
+    org.springframework.web: INFO
+    org.springframework.cloud: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type: INFO
+    org.apache.http: INFO
+    org.apache.tomcat: INFO
+    com.mchange.v2.async.ThreadPoolAsynchronousRunner: INFO
+    com.github.isrsal.logging.LoggingFilter: INFO
+    org.apache.catalina.session.ManagerBase.level: INFO

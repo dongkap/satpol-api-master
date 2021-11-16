@@ -1,0 +1,36 @@
+package com.dongkap.master.service;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+
+import com.dongkap.dto.common.FilterDto;
+import com.dongkap.dto.select.SelectDto;
+import com.dongkap.dto.select.SelectResponseDto;
+import com.dongkap.master.common.CommonService;
+import com.dongkap.master.dao.SubDistrictRepo;
+import com.dongkap.master.dao.specification.SubDistrictSpecification;
+import com.dongkap.master.entity.SubDistrictEntity;
+
+@Service("subDistrictService")
+public class SubDistrictImplService extends CommonService {
+
+	protected Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
+	@Autowired
+	private SubDistrictRepo subDistrictRepo;
+
+	public SelectResponseDto getSelectSubDistrict(FilterDto filter) throws Exception {
+		Page<SubDistrictEntity> subDistrict = subDistrictRepo.findAll(SubDistrictSpecification.getSelect(filter.getKeyword()), page(filter.getOrder(), filter.getOffset(), filter.getLimit()));
+		final SelectResponseDto response = new SelectResponseDto();
+		response.setTotalFiltered(Long.valueOf(subDistrict.getContent().size()));
+		response.setTotalRecord(subDistrictRepo.count(SubDistrictSpecification.getSelect(filter.getKeyword())));
+		subDistrict.getContent().forEach(value -> {
+			response.getData().add(new SelectDto(value.getSubDistrictName(), value.getSubDistrictCode(), !value.isActive(), null));
+		});
+		return response;
+	}
+
+}
