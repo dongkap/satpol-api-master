@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dongkap.common.aspect.ResponseSuccess;
 import com.dongkap.common.exceptions.BaseControllerException;
+import com.dongkap.common.utils.ResourceCode;
 import com.dongkap.common.utils.SuccessCode;
 import com.dongkap.dto.common.ApiBaseResponse;
 import com.dongkap.dto.common.FilterDto;
@@ -26,7 +27,7 @@ import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.service.ParameterI18nImplService;
 
 @RestController
-@RequestMapping("/api/master")
+@RequestMapping(ResourceCode.MASTER_PATH)
 public class ParameterI18nController extends BaseControllerException {
 
 	@Autowired

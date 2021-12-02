@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dongkap.common.aspect.ResponseSuccess;
 import com.dongkap.common.exceptions.BaseControllerException;
+import com.dongkap.common.utils.ResourceCode;
 import com.dongkap.common.utils.SuccessCode;
 import com.dongkap.dto.common.ApiBaseResponse;
 import com.dongkap.dto.common.CommonResponseDto;
@@ -22,7 +23,7 @@ import com.dongkap.dto.master.ParameterGroupDto;
 import com.dongkap.master.service.ParameterGroupImplService;
 
 @RestController
-@RequestMapping("/api/master")
+@RequestMapping(ResourceCode.MASTER_PATH)
 public class ParameterGroupController extends BaseControllerException {
 
 	@Autowired

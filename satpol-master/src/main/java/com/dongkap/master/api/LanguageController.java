@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dongkap.common.exceptions.BaseControllerException;
+import com.dongkap.common.utils.ResourceCode;
 import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.LanguageDto;
@@ -18,7 +19,7 @@ import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.service.LanguageImplService;
 
 @RestController
-@RequestMapping("/api/master")
+@RequestMapping(ResourceCode.MASTER_PATH)
 public class LanguageController extends BaseControllerException {
 
 	@Autowired
