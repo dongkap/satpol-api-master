@@ -1,5 +1,6 @@
 package com.dongkap.master.entity;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,7 +31,7 @@ import lombok.ToString;
 @ToString(exclude={"b2bSet", "assets"})
 @Entity
 @Table(name = "sec_corporate", schema = SchemaDatabase.MASTER)
-public class CorporateEntity extends BaseAuditEntity {
+public class CorporateEntity implements Serializable {
 	
 	/**
 	 * 
