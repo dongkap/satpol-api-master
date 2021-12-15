@@ -1,7 +1,6 @@
 package com.dongkap.master.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -109,18 +108,10 @@ public class LocaleImplService extends CommonService {
 			if (locale == null) {
 				locale = new LocaleEntity();
 				locale.setLocaleCode(request.getLocaleCode());
-				locale.setLocaleDefault(request.isLocaleDefault());
-				locale.setCreatedBy(username);
-				locale.setCreatedDate(new Date());
-			} else {
-				if (request.isLocaleDefault()) {
-					locale.setLocaleCode(request.getLocaleCode());
-				}
-				locale.setModifiedBy(username);
-				locale.setModifiedDate(new Date());				
+				locale.setIdentifier(request.getIdentifier());
+				locale.setLocaleEnabled(request.isLocaleEnabled());
 			}
-			locale.setLocaleEnabled(request.isLocaleEnabled());
-			locale.setIdentifier(request.getIdentifier());
+			locale.setLocaleDefault(request.isLocaleDefault());
 			locale.setIcon(request.getIcon());
 			locale = localeRepo.saveAndFlush(locale);
 		} else {
