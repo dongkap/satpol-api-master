@@ -24,6 +24,7 @@ import com.dongkap.common.exceptions.SystemErrorException;
 import com.dongkap.common.utils.ErrorCode;
 import com.dongkap.common.utils.ParameterStatic;
 import com.dongkap.common.utils.StreamKeyStatic;
+import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.CommonStreamMessageDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.ParameterI18nDto;
@@ -58,6 +59,29 @@ public class ParameterI18nImplService extends CommonService {
 
 	@Value("${dongkap.locale}")
 	private String locale;
+
+	public CommonResponseDto<ParameterI18nDto> getDatatableParameterI18n(FilterDto filter) throws Exception {
+		Page<ParameterI18nEntity> param = parameterI18nRepo.findAll(ParameterI18nSpecification.getDatatable(filter.getKeyword()), page(filter.getOrder(), filter.getOffset(), filter.getLimit()));
+		final CommonResponseDto<ParameterI18nDto> response = new CommonResponseDto<ParameterI18nDto>();
+		response.setTotalFiltered(Long.valueOf(param.getContent().size()));
+		response.setTotalRecord(parameterI18nRepo.count(ParameterI18nSpecification.getDatatable(filter.getKeyword())));
+		param.getContent().forEach(value -> {
+			ParameterI18nDto temp = new ParameterI18nDto();
+			temp.setParameterValue(value.getParameterValue());
+			temp.setLocale(value.getLocaleCode());
+			temp.setParameterCode(value.getParameter().getParameterCode());
+			temp.setParameterGroupCode(value.getParameter().getParameterGroup().getParameterGroupCode());
+			temp.setParameterGroupName(value.getParameter().getParameterGroup().getParameterGroupName());
+			temp.setActive(value.isActive());
+			temp.setVersion(value.getVersion());
+			temp.setCreatedDate(value.getCreatedDate());
+			temp.setCreatedBy(value.getCreatedBy());
+			temp.setModifiedDate(value.getModifiedDate());
+			temp.setModifiedBy(value.getModifiedBy());
+			response.getData().add(temp);
+		});
+		return response;
+	}
 
 	public List<ParameterI18nDto> getParameterCode(Map<String, Object> filter) throws Exception {
 		List<ParameterI18nEntity> param = parameterI18nRepo.findByParameter_ParameterCode(filter.get("parameterCode").toString());
@@ -98,8 +122,6 @@ public class ParameterI18nImplService extends CommonService {
 							paramI18n.setLocaleCode(localeCode);
 							paramI18n.setParameterValue(request.getParameterValues().get(localeCode));
 							paramI18n.setParameter(param);
-							paramI18n.setCreatedBy(username);
-							paramI18n.setCreatedDate(new Date());
 							parameterI18ns.add(paramI18n);
 					}
 					param.setParameterI18n(parameterI18ns);
@@ -112,21 +134,17 @@ public class ParameterI18nImplService extends CommonService {
 						ParameterI18nEntity paramI18n = parameterI18nRepo.findByParameter_ParameterCodeAndLocaleCode(request.getParameterCode(), localeCode);
 						if (param == null) {
 							paramI18n = new ParameterI18nEntity();
-							paramI18n.setCreatedBy(username);
-							paramI18n.setCreatedDate(new Date());
-						} else {
-							paramI18n.setModifiedBy(username);
-							paramI18n.setModifiedDate(new Date());
 						}
 						paramI18n.setLocaleCode(localeCode);
 						paramI18n.setParameterValue(request.getParameterValues().get(localeCode));
 						paramI18n.setParameter(param);
 						parameterI18nRepo.saveAndFlush(paramI18n);
 
-						ParameterI18nDto param18n = new ParameterI18nDto(); 
+						ParameterI18nDto param18n = new ParameterI18nDto();
 						param18n.setParameterCode(param.getParameterCode());
 						param18n.setParameterGroupCode(param.getParameterGroup().getParameterGroupCode());
 						param18n.setParameterGroupName(param.getParameterGroup().getParameterGroupName());
+						param18n.setParameterI18nUUID(paramI18n.getId());
 						param18n.setParameterValue(paramI18n.getParameterValue());
 						param18n.setLocale(paramI18n.getLocaleCode());
 						message.getDatas().add(param18n);

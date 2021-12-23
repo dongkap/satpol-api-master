@@ -56,4 +56,41 @@ public class ParameterI18nSpecification {
 		};
 	}
 
+	public static Specification<ParameterI18nEntity> getDatatable(final Map<String, Object> keyword) {
+		return new Specification<ParameterI18nEntity>() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -637621292944403277L;
+
+			@Override
+			public Predicate toPredicate(Root<ParameterI18nEntity> root, CriteriaQuery<?> criteria, CriteriaBuilder builder) {
+				Predicate predicate = builder.conjunction();
+				if (!keyword.isEmpty()) {
+					for(Map.Entry<String, Object> filter : keyword.entrySet()) {
+						String key = filter.getKey();
+						Object value = filter.getValue();
+						if (value != null) {
+							switch (key) {
+								case "parameterGroupCode" :
+									predicate = builder.and(predicate, builder.equal(root.join("parameter").join("parameterGroup").<String>get(key), value.toString()));
+									break;
+								case "parameterCode" :
+									predicate = builder.and(predicate, builder.equal(root.join("parameter").<String>get(key), value.toString()));
+									break;
+								case "_all" :
+									predicate.getExpressions().add(builder.like(builder.upper(root.join("parameter").<String>get("parameterCode")), String.format("%%%s%%", value.toString().toUpperCase())));
+									break;
+								default :
+									break;
+							}
+						}
+					}
+				}
+				return predicate;
+			}
+		};
+	}
+
 }

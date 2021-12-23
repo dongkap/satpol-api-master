@@ -20,6 +20,7 @@ import com.dongkap.common.exceptions.BaseControllerException;
 import com.dongkap.common.utils.ResourceCode;
 import com.dongkap.common.utils.SuccessCode;
 import com.dongkap.dto.common.ApiBaseResponse;
+import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.ParameterI18nDto;
 import com.dongkap.dto.master.ParameterRequestDto;
@@ -32,6 +33,12 @@ public class ParameterI18nController extends BaseControllerException {
 
 	@Autowired
 	private ParameterI18nImplService parameterI18nService;
+
+	@RequestMapping(value = "/vw/auth/datatable/parameter-i18n/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CommonResponseDto<ParameterI18nDto>> getDatatableParameter(Authentication authentication,
+			@RequestBody(required = true) FilterDto filter) throws Exception {
+		return new ResponseEntity<CommonResponseDto<ParameterI18nDto>>(this.parameterI18nService.getDatatableParameterI18n(filter), HttpStatus.OK);
+	}
 
 	@RequestMapping(value = "/vw/post/select/parameter-i18n/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SelectResponseDto> getSelectParameter(Authentication authentication,
