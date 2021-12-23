@@ -132,8 +132,8 @@ public class ParameterI18nImplService extends CommonService {
 						message.getDatas().add(param18n);
 					}
 					ObjectRecord<String, CommonStreamMessageDto> record = StreamRecords.newRecord()
-	                        .ofObject(message)
-	                        .withStreamKey(StreamKeyStatic.PARAMETER);
+							.in(StreamKeyStatic.PARAMETER)
+	                        .ofObject(message);
 			        this.reactiveRedisTemplate
 			                .opsForStream()
 			                .add(record)

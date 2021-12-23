@@ -16,6 +16,8 @@ spring:
     port: ${REDIS_PORT:6379}
     password: ${REDIS_PASSWORD:P@ssw0rd}
     database: ${REDIS_DATABASE:1}
+    connect-timeout: 2s
+    timeout: 3s
     pool:
       min-idle: 0
       max-idle: 8
