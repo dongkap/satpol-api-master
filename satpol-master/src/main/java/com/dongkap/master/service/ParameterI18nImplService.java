@@ -15,17 +15,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.redis.connection.stream.ObjectRecord;
-import org.springframework.data.redis.connection.stream.StreamRecords;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.stereotype.Service;
 
 import com.dongkap.common.exceptions.SystemErrorException;
+import com.dongkap.common.stream.PublishStream;
 import com.dongkap.common.utils.ErrorCode;
 import com.dongkap.common.utils.ParameterStatic;
 import com.dongkap.common.utils.StreamKeyStatic;
 import com.dongkap.dto.common.CommonResponseDto;
-import com.dongkap.dto.common.CommonStreamMessageDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.ParameterI18nDto;
 import com.dongkap.dto.master.ParameterRequestDto;
@@ -53,9 +50,6 @@ public class ParameterI18nImplService extends CommonService {
 	
 	@Autowired
 	private ParameterRepo parameterRepo;
-	
-	@Autowired
-	private ReactiveRedisOperations<String, CommonStreamMessageDto> reactiveRedisTemplate;
 
 	@Value("${dongkap.locale}")
 	private String locale;
@@ -105,10 +99,12 @@ public class ParameterI18nImplService extends CommonService {
 	}
 	
 	@Transactional
-	public void postParameterI18n(ParameterRequestDto request, String username) throws Exception {
+	@PublishStream(key = StreamKeyStatic.PARAMETER, status = ParameterStatic.UPDATE_DATA)
+	public List<ParameterI18nDto> postParameterI18n(ParameterRequestDto request, String username) throws Exception {
 		if (request.getParameterValues() != null && request.getParameterCode() != null && request.getParameterGroupCode() != null) {
 			ParameterGroupEntity paramGroup = parameterGroupRepo.findByParameterGroupCode(request.getParameterGroupCode());
 			if (paramGroup != null) {
+				List<ParameterI18nDto> result = null;
 				ParameterEntity param = parameterRepo.findByParameterCode(request.getParameterCode());
 				if (param == null) {
 					param = new ParameterEntity();
@@ -127,9 +123,7 @@ public class ParameterI18nImplService extends CommonService {
 					param.setParameterI18n(parameterI18ns);
 					param = parameterRepo.saveAndFlush(param);
 				} else {
-					CommonStreamMessageDto message = new CommonStreamMessageDto();
-					message.setTopic(StreamKeyStatic.PARAMETER);
-					message.setStatus(ParameterStatic.UPDATE_DATA);
+					result = new ArrayList<ParameterI18nDto>();
 					for(String localeCode: request.getParameterValues().keySet()) {
 						ParameterI18nEntity paramI18n = parameterI18nRepo.findByParameter_ParameterCodeAndLocaleCode(request.getParameterCode(), localeCode);
 						if (param == null) {
@@ -140,23 +134,17 @@ public class ParameterI18nImplService extends CommonService {
 						paramI18n.setParameter(param);
 						parameterI18nRepo.saveAndFlush(paramI18n);
 
-						ParameterI18nDto param18n = new ParameterI18nDto();
-						param18n.setParameterCode(param.getParameterCode());
-						param18n.setParameterGroupCode(param.getParameterGroup().getParameterGroupCode());
-						param18n.setParameterGroupName(param.getParameterGroup().getParameterGroupName());
-						param18n.setParameterI18nUUID(paramI18n.getId());
-						param18n.setParameterValue(paramI18n.getParameterValue());
-						param18n.setLocale(paramI18n.getLocaleCode());
-						message.getDatas().add(param18n);
+						ParameterI18nDto param18nDto = new ParameterI18nDto();
+						param18nDto.setParameterCode(param.getParameterCode());
+						param18nDto.setParameterGroupCode(param.getParameterGroup().getParameterGroupCode());
+						param18nDto.setParameterGroupName(param.getParameterGroup().getParameterGroupName());
+						param18nDto.setParameterI18nUUID(paramI18n.getId());
+						param18nDto.setParameterValue(paramI18n.getParameterValue());
+						param18nDto.setLocale(paramI18n.getLocaleCode());
+						result.add(param18nDto);
 					}
-					ObjectRecord<String, CommonStreamMessageDto> record = StreamRecords.newRecord()
-							.in(StreamKeyStatic.PARAMETER)
-	                        .ofObject(message);
-			        this.reactiveRedisTemplate
-			                .opsForStream()
-			                .add(record)
-			                .subscribe();
 				}
+				return result;
 			} else {
 				throw new SystemErrorException(ErrorCode.ERR_SYS0404);
 			}
