@@ -26,8 +26,8 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false, exclude={"b2bSet", "assets"})
-@ToString(exclude={"b2bSet", "assets"})
+@EqualsAndHashCode(callSuper=false, exclude={"b2bs", "assets"})
+@ToString(exclude={"b2bs", "assets"})
 @Entity
 @Table(name = "mst_business_partner", schema = SchemaDatabase.MASTER)
 public class BusinessPartnerEntity extends BaseAuditEntity {
@@ -60,7 +60,7 @@ public class BusinessPartnerEntity extends BaseAuditEntity {
 
 	@ManyToMany(mappedBy = "businessPartner", targetEntity = B2BEntity.class, fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
-	private Set<B2BEntity> b2bSet = new HashSet<B2BEntity>();
+	private Set<B2BEntity> b2bs = new HashSet<B2BEntity>();
 
 	@ManyToMany(mappedBy = "businessPartner", targetEntity = AssetEntity.class, fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
