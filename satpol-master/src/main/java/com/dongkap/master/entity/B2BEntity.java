@@ -42,7 +42,7 @@ public class B2BEntity extends BaseAuditEntity {
 	private String id;
 
 	@Column(name = "b2b_non_expired", nullable = false)
-	private boolean b2bNonExpired = true;
+	private Boolean b2bNonExpired = true;
 
 	@Column(name = "b2b_expired_time")
 	private Date expiredTime;

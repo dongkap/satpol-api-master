@@ -40,7 +40,7 @@ public class ParameterGroupImplService extends CommonService {
 			ParameterGroupDto temp = new ParameterGroupDto();
 			temp.setParameterGroupCode(value.getParameterGroupCode());
 			temp.setParameterGroupName(value.getParameterGroupName());
-			temp.setActive(value.isActive());
+			temp.setActive(value.getActive());
 			temp.setVersion(value.getVersion());
 			temp.setCreatedDate(value.getCreatedDate());
 			temp.setCreatedBy(value.getCreatedBy());

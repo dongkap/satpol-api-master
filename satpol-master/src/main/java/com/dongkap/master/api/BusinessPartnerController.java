@@ -1,6 +1,5 @@
 package com.dongkap.master.api;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ import com.dongkap.common.utils.SuccessCode;
 import com.dongkap.dto.common.ApiBaseResponse;
 import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
-import com.dongkap.dto.master.BusinessPartnerDto;
+import com.dongkap.dto.master.B2BDto;
 import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.service.BusinessPartnerImplService;
 
@@ -39,14 +38,14 @@ public class BusinessPartnerController extends BaseControllerException {
 	private TokenStore tokenStore;
 
 	@RequestMapping(value = "/vw/auth/datatable/business-partner/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CommonResponseDto<BusinessPartnerDto>> getDatatableBusinessPartner(Authentication authentication,
+	public ResponseEntity<CommonResponseDto<B2BDto>> getDatatableBusinessPartner(Authentication authentication,
 			@RequestBody(required = true) FilterDto filter) throws Exception {
 		Map<String, Object> additionalInfo = this.getAdditionalInformation(authentication);
-		return new ResponseEntity<CommonResponseDto<BusinessPartnerDto>>(this.businessPartnerService.getDatatable(additionalInfo, filter), HttpStatus.OK);
+		return new ResponseEntity<CommonResponseDto<B2BDto>>(this.businessPartnerService.getDatatable(additionalInfo, filter), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/vw/auth/select/business-partner/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SelectResponseDto> getSelectRole(Authentication authentication,
+	public ResponseEntity<SelectResponseDto> getSelectBusinessPartner(Authentication authentication,
 														 @RequestHeader(name = HttpHeaders.ACCEPT_LANGUAGE, required = false) String locale,
 														 @RequestBody(required = true) FilterDto filter) throws Exception {
 		Map<String, Object> additionalInfo = this.getAdditionalInformation(authentication);
@@ -56,17 +55,9 @@ public class BusinessPartnerController extends BaseControllerException {
 	@ResponseSuccess(SuccessCode.OK_DEFAULT)
 	@RequestMapping(value = "/trx/auth/business-partner/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ApiBaseResponse> postBusinessPartner(Authentication authentication,
-			@RequestBody(required = true) BusinessPartnerDto data) throws Exception {
+			@RequestBody(required = true) B2BDto data) throws Exception {
 		Map<String, Object> additionalInfo = this.getAdditionalInformation(authentication);
 		this.businessPartnerService.postBusinessPartner(additionalInfo, data);
-		return new ResponseEntity<ApiBaseResponse>(new ApiBaseResponse(), HttpStatus.OK);
-	}
-
-	@ResponseSuccess(SuccessCode.OK_DELETED)
-	@RequestMapping(value = "/trx/auth/delete/business-partner/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiBaseResponse> deleteBusinessPartner(Authentication authentication,
-													  @RequestBody(required = true) List<String> datas) throws Exception {
-		this.businessPartnerService.deleteBusinessPartners(datas);
 		return new ResponseEntity<ApiBaseResponse>(new ApiBaseResponse(), HttpStatus.OK);
 	}
 

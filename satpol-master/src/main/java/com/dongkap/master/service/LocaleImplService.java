@@ -37,7 +37,7 @@ public class LocaleImplService extends CommonService {
 		response.setTotalFiltered(Long.valueOf(locale.getContent().size()));
 		response.setTotalRecord(localeRepo.count(LocaleSpecification.getSelect(filter.getKeyword())));
 		locale.getContent().forEach(value -> {
-			response.getData().add(new SelectDto(value.getIdentifier(), value.getLocaleCode(), !value.isActive(), value.getIcon()));
+			response.getData().add(new SelectDto(value.getIdentifier(), value.getLocaleCode(), !value.getActive(), value.getIcon()));
 		});
 		return response;
 	}
@@ -48,7 +48,7 @@ public class LocaleImplService extends CommonService {
 		response.setTotalFiltered(Long.valueOf(locale.size()));
 		response.setTotalRecord(Long.valueOf(locale.size()));
 		locale.forEach(value -> {
-			response.getData().add(new SelectDto(value.getIdentifier(), value.getLocaleCode(), !value.isActive(), value.getIcon()));
+			response.getData().add(new SelectDto(value.getIdentifier(), value.getLocaleCode(), !value.getActive(), value.getIcon()));
 		});
 		return response;
 	}
@@ -63,7 +63,7 @@ public class LocaleImplService extends CommonService {
 			temp.setIcon(value.getIcon());
 			temp.setLocaleDefault(value.isLocaleDefault());
 			temp.setLocaleEnabled(value.isLocaleEnabled());
-			temp.setActive(value.isActive());
+			temp.setActive(value.getActive());
 			temp.setVersion(value.getVersion());
 			temp.setCreatedBy(value.getCreatedBy());
 			temp.setCreatedDate(value.getCreatedDate());
@@ -86,7 +86,7 @@ public class LocaleImplService extends CommonService {
 			temp.setIcon(value.getIcon());
 			temp.setLocaleDefault(value.isLocaleDefault());
 			temp.setLocaleEnabled(value.isLocaleEnabled());
-			temp.setActive(value.isActive());
+			temp.setActive(value.getActive());
 			temp.setVersion(value.getVersion());
 			temp.setCreatedDate(value.getCreatedDate());
 			temp.setCreatedBy(value.getCreatedBy());

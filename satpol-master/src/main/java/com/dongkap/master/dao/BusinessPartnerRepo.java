@@ -11,6 +11,4 @@ public interface BusinessPartnerRepo extends JpaRepository<BusinessPartnerEntity
 
 	List<BusinessPartnerEntity> findByIdIn(List<String> ids);
 	
-	BusinessPartnerEntity findByB2bsCorporate_CorporateCode(String corporateCode);
-	
 }

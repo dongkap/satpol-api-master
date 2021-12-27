@@ -28,7 +28,7 @@ public class CountryImplService extends CommonService {
 		response.setTotalFiltered(Long.valueOf(country.getContent().size()));
 		response.setTotalRecord(countryRepo.count(CountrySpecification.getSelect(filter.getKeyword())));
 		country.getContent().forEach(value -> {
-			response.getData().add(new SelectDto(value.getCountryName(), value.getCountryCode(), !value.isActive(), null));
+			response.getData().add(new SelectDto(value.getCountryName(), value.getCountryCode(), !value.getActive(), null));
 		});
 		return response;
 	}

@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +18,18 @@ import com.dongkap.common.utils.ParameterStatic;
 import com.dongkap.common.utils.StreamKeyStatic;
 import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
+import com.dongkap.dto.master.B2BDto;
 import com.dongkap.dto.master.BusinessPartnerDto;
+import com.dongkap.dto.security.CorporateDto;
 import com.dongkap.dto.select.SelectDto;
 import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.common.CommonService;
-import com.dongkap.master.dao.BusinessPartnerRepo;
-import com.dongkap.master.dao.specification.BusinessPartnerSpecification;
+import com.dongkap.master.dao.B2BRepo;
+import com.dongkap.master.dao.CorporateRepo;
+import com.dongkap.master.dao.specification.B2BSpecification;
+import com.dongkap.master.entity.B2BEntity;
 import com.dongkap.master.entity.BusinessPartnerEntity;
+import com.dongkap.master.entity.CorporateEntity;
 
 @Service("businessPartnerService")
 public class BusinessPartnerImplService extends CommonService {
@@ -34,7 +37,10 @@ public class BusinessPartnerImplService extends CommonService {
 	protected Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private BusinessPartnerRepo businessPartnerRepo;
+	private B2BRepo b2bRepo;
+
+	@Autowired
+	private CorporateRepo corporateRepo;
 
 	@Transactional
 	public SelectResponseDto getSelect(Map<String, Object> additionalInfo, FilterDto filter) throws Exception {
@@ -42,70 +48,85 @@ public class BusinessPartnerImplService extends CommonService {
 			throw new SystemErrorException(ErrorCode.ERR_SYS0001);
 		}
 		filter.getKeyword().put("corporateCode", additionalInfo.get("corporate_code"));
-		Page<BusinessPartnerEntity> businessPartner = businessPartnerRepo.findAll(BusinessPartnerSpecification.getSelect(filter.getKeyword()), page(filter.getOrder(), filter.getOffset(), filter.getLimit()));
+		Page<B2BEntity> b2b = b2bRepo.findAll(B2BSpecification.getSelect(filter.getKeyword()), page(filter.getOrder(), filter.getOffset(), filter.getLimit()));
 		final SelectResponseDto response = new SelectResponseDto();
-		response.setTotalFiltered(Long.valueOf(businessPartner.getContent().size()));
-		response.setTotalRecord(businessPartnerRepo.count(BusinessPartnerSpecification.getSelect(filter.getKeyword())));
-		businessPartner.getContent().forEach(value -> {
-			response.getData().add(new SelectDto(value.getBpName(), value.getId(), !value.isActive(), null));
+		response.setTotalFiltered(Long.valueOf(b2b.getContent().size()));
+		response.setTotalRecord(b2bRepo.count(B2BSpecification.getSelect(filter.getKeyword())));
+		b2b.getContent().forEach(value -> {
+			response.getData().add(new SelectDto(value.getBusinessPartner().getBpName(), value.getId(), !value.getActive(), null));
 		});
 		return response;
 	}
 
 	@Transactional
-	public CommonResponseDto<BusinessPartnerDto> getDatatable(Map<String, Object> additionalInfo, FilterDto filter) throws Exception {
-		Page<BusinessPartnerEntity> businessPartner = businessPartnerRepo.findAll(BusinessPartnerSpecification.getDatatable(filter.getKeyword()), page(filter.getOrder(), filter.getOffset(), filter.getLimit()));
-		final CommonResponseDto<BusinessPartnerDto> response = new CommonResponseDto<BusinessPartnerDto>();
-		response.setTotalFiltered(Long.valueOf(businessPartner.getContent().size()));
-		response.setTotalRecord(businessPartnerRepo.count(BusinessPartnerSpecification.getDatatable(filter.getKeyword())));
-		businessPartner.getContent().forEach(value -> {
-			BusinessPartnerDto temp = new BusinessPartnerDto();
-			temp.setBpName(value.getBpName());
-			temp.setEmail(value.getEmail());
-			temp.setAddress(value.getAddress());
-			temp.setTelpNumber(value.getTelpNumber());
-			temp.setFaxNumber(value.getFaxNumber());
-			temp.setActive(value.isActive());
-			temp.setVersion(value.getVersion());
-			temp.setCreatedDate(value.getCreatedDate());
-			temp.setCreatedBy(value.getCreatedBy());
-			temp.setModifiedDate(value.getModifiedDate());
-			temp.setModifiedBy(value.getModifiedBy());
-			response.getData().add(temp);
+	public CommonResponseDto<B2BDto> getDatatable(Map<String, Object> additionalInfo, FilterDto filter) throws Exception {
+		Page<B2BEntity> b2b = b2bRepo.findAll(B2BSpecification.getDatatable(filter.getKeyword()), page(filter.getOrder(), filter.getOffset(), filter.getLimit()));
+		final CommonResponseDto<B2BDto> response = new CommonResponseDto<B2BDto>();
+		response.setTotalFiltered(Long.valueOf(b2b.getContent().size()));
+		response.setTotalRecord(b2bRepo.count(B2BSpecification.getDatatable(filter.getKeyword())));
+		b2b.getContent().forEach(value -> {
+			B2BDto b2bTemp = new B2BDto();
+			b2bTemp.setId(value.getId());
+			b2bTemp.setB2bNonExpired(value.getB2bNonExpired());
+			b2bTemp.setExpiredTime(value.getExpiredTime());
+			b2bTemp.setActive(value.getActive());
+			b2bTemp.setVersion(value.getVersion());
+			b2bTemp.setCreatedDate(value.getCreatedDate());
+			b2bTemp.setCreatedBy(value.getCreatedBy());
+			b2bTemp.setModifiedDate(value.getModifiedDate());
+			b2bTemp.setModifiedBy(value.getModifiedBy());
+			BusinessPartnerDto businessPartnerTemp = new BusinessPartnerDto();
+			businessPartnerTemp.setId(value.getBusinessPartner().getId());
+			businessPartnerTemp.setBpName(value.getBusinessPartner().getBpName());
+			businessPartnerTemp.setEmail(value.getBusinessPartner().getEmail());
+			businessPartnerTemp.setAddress(value.getBusinessPartner().getAddress());
+			businessPartnerTemp.setTelpNumber(value.getBusinessPartner().getTelpNumber());
+			businessPartnerTemp.setFaxNumber(value.getBusinessPartner().getFaxNumber());
+			b2bTemp.setBusinessPartner(businessPartnerTemp);
+			CorporateDto corporateTemp = new CorporateDto();
+			corporateTemp.setId(value.getCorporate().getId());
+			corporateTemp.setCorporateCode(value.getCorporate().getCorporateCode());
+			corporateTemp.setCorporateName(value.getCorporate().getCorporateName());
+			b2bTemp.setCorporate(corporateTemp);
+			response.getData().add(b2bTemp);
 		});
 		return response;
 	}
 	
 	@Transactional
 	@PublishStream(key = StreamKeyStatic.BUSINESS_PARTNER, status = ParameterStatic.UPDATE_DATA)
-	public List<BusinessPartnerDto> postBusinessPartner(Map<String, Object> additionalInfo, BusinessPartnerDto request) throws Exception {
-		BusinessPartnerEntity businessPartner = this.businessPartnerRepo.findById(request.getId()).orElse(null);
+	public List<BusinessPartnerDto> postBusinessPartner(Map<String, Object> additionalInfo, B2BDto request) throws Exception {
+		if(additionalInfo.get("corporate_code") == null) {
+			throw new SystemErrorException(ErrorCode.ERR_SYS0001);
+		}
+		B2BEntity b2b = this.b2bRepo.findByIdAndCorporate_CorporateCode(request.getId(), additionalInfo.get("corporate_code").toString());
+		BusinessPartnerEntity businessPartner = new BusinessPartnerEntity();
 		List<BusinessPartnerDto> result = null;
-		if (businessPartner == null) {
-			businessPartner = new BusinessPartnerEntity();
+		if (b2b == null) {
+			CorporateEntity corporate = corporateRepo.findByCorporateCode(additionalInfo.get("corporate_code").toString());
+			if(corporate == null) {
+				throw new SystemErrorException(ErrorCode.ERR_SYS0001);
+			}
+			b2b = new B2BEntity();
+			b2b.setCorporate(corporate);
 		} else {
-			request.setId(businessPartner.getId());
+			businessPartner = b2b.getBusinessPartner();
+			BusinessPartnerDto businessPartnerDto = new BusinessPartnerDto();
+			businessPartnerDto.setId(b2b.getBusinessPartner().getId());
+			businessPartnerDto.setBpName(b2b.getBusinessPartner().getBpName());
 			result = new ArrayList<BusinessPartnerDto>();
-			result.add(request);
+			result.add(businessPartnerDto);
 		}
-		businessPartner.setBpName(request.getBpName());
-		businessPartner.setEmail(request.getEmail());
-		businessPartner.setAddress(request.getAddress());
-		businessPartner.setTelpNumber(request.getTelpNumber());
-		businessPartner.setFaxNumber(request.getFaxNumber());
-		businessPartnerRepo.saveAndFlush(businessPartner);
+		b2b.setB2bNonExpired(request.getB2bNonExpired());
+		b2b.setExpiredTime(request.getExpiredTime());
+		businessPartner.setBpName(request.getBusinessPartner().getBpName());
+		businessPartner.setEmail(request.getBusinessPartner().getEmail());
+		businessPartner.setAddress(request.getBusinessPartner().getAddress());
+		businessPartner.setTelpNumber(request.getBusinessPartner().getTelpNumber());
+		businessPartner.setFaxNumber(request.getBusinessPartner().getFaxNumber());
+		b2b.setBusinessPartner(businessPartner);
+		b2bRepo.saveAndFlush(b2b);
 		return result;
-	}
-
-	public void deleteBusinessPartners(List<String> ids) throws Exception {
-		List<BusinessPartnerEntity> businessPartners = businessPartnerRepo.findByIdIn(ids);
-		try {
-			businessPartnerRepo.deleteInBatch(businessPartners);			
-		} catch (DataIntegrityViolationException e) {
-			throw new SystemErrorException(ErrorCode.ERR_SCR0009);
-		} catch (ConstraintViolationException e) {
-			throw new SystemErrorException(ErrorCode.ERR_SCR0009);
-		}
 	}
 
 }

@@ -30,7 +30,7 @@ public class CityImplService extends CommonService {
 		response.setTotalFiltered(Long.valueOf(city.getContent().size()));
 		response.setTotalRecord(cityRepo.count(CitySpecification.getSelect(filter.getKeyword())));
 		city.getContent().forEach(value -> {
-			response.getData().add(new SelectDto(value.getCityName(), value.getCityCode(), !value.isActive(), null));
+			response.getData().add(new SelectDto(value.getCityName(), value.getCityCode(), !value.getActive(), null));
 		});
 		return response;
 	}
@@ -45,7 +45,7 @@ public class CityImplService extends CommonService {
 			temp.setCityCode(value.getCityCode());
 			temp.setCityName(value.getCityName());
 			temp.setProvinceName(value.getProvince().getProvinceName());
-			temp.setActive(value.isActive());
+			temp.setActive(value.getActive());
 			temp.setVersion(value.getVersion());
 			temp.setCreatedDate(value.getCreatedDate());
 			temp.setCreatedBy(value.getCreatedBy());

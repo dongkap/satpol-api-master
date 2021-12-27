@@ -66,7 +66,7 @@ public class ParameterI18nImplService extends CommonService {
 			temp.setParameterCode(value.getParameter().getParameterCode());
 			temp.setParameterGroupCode(value.getParameter().getParameterGroup().getParameterGroupCode());
 			temp.setParameterGroupName(value.getParameter().getParameterGroup().getParameterGroupName());
-			temp.setActive(value.isActive());
+			temp.setActive(value.getActive());
 			temp.setVersion(value.getVersion());
 			temp.setCreatedDate(value.getCreatedDate());
 			temp.setCreatedBy(value.getCreatedBy());
@@ -87,7 +87,7 @@ public class ParameterI18nImplService extends CommonService {
 			temp.setParameterGroupName(value.getParameter().getParameterGroup().getParameterGroupName());
 			temp.setParameterValue(value.getParameterValue());
 			temp.setLocale(value.getLocaleCode());
-			temp.setActive(value.isActive());
+			temp.setActive(value.getActive());
 			temp.setVersion(value.getVersion());
 			temp.setCreatedDate(value.getCreatedDate());
 			temp.setCreatedBy(value.getCreatedBy());
@@ -170,7 +170,7 @@ public class ParameterI18nImplService extends CommonService {
 			temp.setParameterGroupName(parameterI18n.getParameter().getParameterGroup().getParameterGroupName());
 			temp.setParameterValue(parameterI18n.getParameterValue());
 			temp.setLocale(parameterI18n.getLocaleCode());
-			temp.setActive(parameterI18n.isActive());
+			temp.setActive(parameterI18n.getActive());
 			temp.setVersion(parameterI18n.getVersion());
 			temp.setCreatedDate(parameterI18n.getCreatedDate());
 			temp.setCreatedBy(parameterI18n.getCreatedBy());
@@ -197,7 +197,7 @@ public class ParameterI18nImplService extends CommonService {
 		response.setTotalFiltered(Long.valueOf(parameter.getContent().size()));
 		response.setTotalRecord(parameterI18nRepo.count(ParameterI18nSpecification.getSelect(filter.getKeyword())));
 		parameter.getContent().forEach(value -> {
-			response.getData().add(new SelectDto(value.getParameterValue(), value.getParameter().getParameterCode(), !value.getParameter().isActive(), null));
+			response.getData().add(new SelectDto(value.getParameterValue(), value.getParameter().getParameterCode(), !value.getParameter().getActive(), null));
 		});
 		return response;
 	}

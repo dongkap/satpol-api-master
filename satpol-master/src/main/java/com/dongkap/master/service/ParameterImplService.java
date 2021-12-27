@@ -40,7 +40,7 @@ public class ParameterImplService extends CommonService {
 			temp.setParameterCode(value.getParameterCode());
 			temp.setParameterGroupCode(value.getParameterGroup().getParameterGroupCode());
 			temp.setParameterGroupName(value.getParameterGroup().getParameterGroupName());
-			temp.setActive(value.isActive());
+			temp.setActive(value.getActive());
 			temp.setVersion(value.getVersion());
 			temp.setCreatedDate(value.getCreatedDate());
 			temp.setCreatedBy(value.getCreatedBy());
@@ -63,7 +63,7 @@ public class ParameterImplService extends CommonService {
 		response.setTotalRecord(parameterRepo.count(ParameterSpecification.getSelect(filter.getKeyword())));
 		parameter.getContent().forEach(value -> {
 			value.getParameterI18n().forEach(data -> {
-				response.getData().add(new SelectDto(data.getParameterValue(), value.getParameterCode(), !value.isActive(), null));
+				response.getData().add(new SelectDto(data.getParameterValue(), value.getParameterCode(), !value.getActive(), null));
 			});
 		});
 		return response;

@@ -30,7 +30,7 @@ public class LanguageImplService extends CommonService {
 		response.setTotalFiltered(Long.valueOf(locale.getContent().size()));
 		response.setTotalRecord(languageRepo.count(LanguageSpecification.getSelect(filter.getKeyword())));
 		locale.getContent().forEach(value -> {
-			response.getData().add(new SelectDto(value.getIdentifier(), value.getLanguageCode(), !value.isActive(), null));
+			response.getData().add(new SelectDto(value.getIdentifier(), value.getLanguageCode(), !value.getActive(), null));
 		});
 		return response;
 	}
@@ -44,7 +44,7 @@ public class LanguageImplService extends CommonService {
 			LanguageDto temp = new LanguageDto();
 			temp.setLanguageCode(value.getLanguageCode());
 			temp.setIdentifier(value.getIdentifier());
-			temp.setActive(value.isActive());
+			temp.setActive(value.getActive());
 			temp.setVersion(value.getVersion());
 			temp.setCreatedDate(value.getCreatedDate());
 			temp.setCreatedBy(value.getCreatedBy());
