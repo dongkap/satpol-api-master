@@ -105,7 +105,9 @@ public class BusinessPartnerImplService extends CommonService {
 		if (b2b == null) {
 			CorporateEntity corporate = corporateRepo.findByCorporateCode(additionalInfo.get("corporate_code").toString());
 			if(corporate == null) {
-				throw new SystemErrorException(ErrorCode.ERR_SYS0001);
+				corporate = new CorporateEntity();
+				corporate.setCorporateCode(additionalInfo.get("corporate_code").toString());
+				corporate.setCorporateName(additionalInfo.get("corporate_name").toString());;
 			}
 			b2b = new B2BEntity();
 			b2b.setCorporate(corporate);
@@ -125,6 +127,7 @@ public class BusinessPartnerImplService extends CommonService {
 		businessPartner.setTelpNumber(request.getBusinessPartner().getTelpNumber());
 		businessPartner.setFaxNumber(request.getBusinessPartner().getFaxNumber());
 		b2b.setBusinessPartner(businessPartner);
+		LOGGER.info(b2b.toString());
 		b2bRepo.saveAndFlush(b2b);
 		return result;
 	}

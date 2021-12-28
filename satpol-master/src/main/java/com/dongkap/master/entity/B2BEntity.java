@@ -2,6 +2,7 @@ package com.dongkap.master.entity;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -47,11 +48,11 @@ public class B2BEntity extends BaseAuditEntity {
 	@Column(name = "b2b_expired_time")
 	private Date expiredTime;
 
-	@OneToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY)
+	@OneToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinColumn(name = "bp_uuid", nullable = false)
 	private BusinessPartnerEntity businessPartner;
 
-	@OneToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY)
+	@OneToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinColumn(name = "corporate_uuid", nullable = false)
 	private CorporateEntity corporate;
 
