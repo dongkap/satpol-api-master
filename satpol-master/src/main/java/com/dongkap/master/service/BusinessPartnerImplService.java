@@ -53,7 +53,7 @@ public class BusinessPartnerImplService extends CommonService {
 		response.setTotalFiltered(Long.valueOf(b2b.getContent().size()));
 		response.setTotalRecord(b2bRepo.count(B2BSpecification.getSelect(filter.getKeyword())));
 		b2b.getContent().forEach(value -> {
-			response.getData().add(new SelectDto(value.getBusinessPartner().getBpName(), value.getId(), !value.getActive(), null));
+			response.getData().add(new SelectDto(value.getBusinessPartner().getBpName(), value.getBusinessPartner().getId(), !value.getActive(), null));
 		});
 		return response;
 	}
@@ -94,7 +94,7 @@ public class BusinessPartnerImplService extends CommonService {
 	}
 	
 	@Transactional
-	@PublishStream(key = StreamKeyStatic.BUSINESS_PARTNER, status = ParameterStatic.UPDATE_DATA)
+	@PublishStream(key = StreamKeyStatic.BUSINESS_PARTNER, status = ParameterStatic.PERSIST_DATA)
 	public List<BusinessPartnerDto> postBusinessPartner(Map<String, Object> additionalInfo, B2BDto request) throws Exception {
 		if(additionalInfo.get("corporate_code") == null) {
 			throw new SystemErrorException(ErrorCode.ERR_SYS0001);
@@ -107,7 +107,7 @@ public class BusinessPartnerImplService extends CommonService {
 			if(corporate == null) {
 				corporate = new CorporateEntity();
 				corporate.setCorporateCode(additionalInfo.get("corporate_code").toString());
-				corporate.setCorporateName(additionalInfo.get("corporate_name").toString());;
+				corporate.setCorporateName(additionalInfo.get("corporate_name").toString());
 			}
 			b2b = new B2BEntity();
 			b2b.setCorporate(corporate);
@@ -127,7 +127,6 @@ public class BusinessPartnerImplService extends CommonService {
 		businessPartner.setTelpNumber(request.getBusinessPartner().getTelpNumber());
 		businessPartner.setFaxNumber(request.getBusinessPartner().getFaxNumber());
 		b2b.setBusinessPartner(businessPartner);
-		LOGGER.info(b2b.toString());
 		b2bRepo.saveAndFlush(b2b);
 		return result;
 	}

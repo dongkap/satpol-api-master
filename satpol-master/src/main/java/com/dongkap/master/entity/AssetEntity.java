@@ -52,7 +52,7 @@ public class AssetEntity extends BaseAuditEntity {
 	private String description;
 
 	@OneToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY)
-	@JoinColumn(name = "bp_uuid", nullable = false)
+	@JoinColumn(name = "bp_uuid", nullable = true)
 	private BusinessPartnerEntity businessPartner;
 
 	@OneToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY)

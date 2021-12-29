@@ -9,15 +9,15 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.dongkap.master.entity.B2BEntity;
+import com.dongkap.master.entity.AssetEntity;
 
 
-public class B2BSpecification {
+public class AssetSpecification {
 	
 	private static final String IS_ACTIVE = "active";
 
-	public static Specification<B2BEntity> getSelect(final Map<String, Object> keyword) {
-		return new Specification<B2BEntity>() {
+	public static Specification<AssetEntity> getSelect(final Map<String, Object> keyword) {
+		return new Specification<AssetEntity>() {
 
 			/**
 			 * 
@@ -25,7 +25,7 @@ public class B2BSpecification {
 			private static final long serialVersionUID = -637621292944403277L;
 
 			@Override
-			public Predicate toPredicate(Root<B2BEntity> root, CriteriaQuery<?> criteria, CriteriaBuilder builder) {
+			public Predicate toPredicate(Root<AssetEntity> root, CriteriaQuery<?> criteria, CriteriaBuilder builder) {
 				Predicate predicate = builder.conjunction();
 				if (!keyword.isEmpty()) {
 					for(Map.Entry<String, Object> filter : keyword.entrySet()) {
@@ -34,12 +34,12 @@ public class B2BSpecification {
 						if (value != null) {
 							switch (key) {
 								case "_label" :
-								case "bpName" :
+								case "assetName" :
 									// builder.upper for PostgreSQL
-									predicate.getExpressions().add(builder.like(builder.upper(root.join("businessPartner").<String>get("bpName")), String.format("%%%s%%", value.toString().toUpperCase())));
+									predicate.getExpressions().add(builder.like(builder.upper(root.<String>get("assetName")), String.format("%%%s%%", value.toString().toUpperCase())));
 									break;
 								case "id" :
-									predicate.getExpressions().add(builder.equal(root.join("businessPartner").<String>get("id"), value));
+									predicate.getExpressions().add(builder.equal(root.get("id"), value));
 									break;
 								case "corporateCode" :
 									predicate.getExpressions().add(builder.equal(root.join("corporate").<String>get("corporateCode"), value.toString()));
@@ -54,8 +54,8 @@ public class B2BSpecification {
 		};
 	}
 
-	public static Specification<B2BEntity> getDatatable(final Map<String, Object> keyword) {
-		return new Specification<B2BEntity>() {
+	public static Specification<AssetEntity> getDatatable(final Map<String, Object> keyword) {
+		return new Specification<AssetEntity>() {
 
 			/**
 			 * 
@@ -63,7 +63,7 @@ public class B2BSpecification {
 			private static final long serialVersionUID = -637621292944403277L;
 
 			@Override
-			public Predicate toPredicate(Root<B2BEntity> root, CriteriaQuery<?> criteria, CriteriaBuilder builder) {
+			public Predicate toPredicate(Root<AssetEntity> root, CriteriaQuery<?> criteria, CriteriaBuilder builder) {
 				Predicate predicate = builder.conjunction();
 				if (!keyword.isEmpty()) {
 					for(Map.Entry<String, Object> filter : keyword.entrySet()) {
@@ -71,15 +71,17 @@ public class B2BSpecification {
 						Object value = filter.getValue();
 						if (value != null) {
 							switch (key) {
-								case "bpName" :
+								case "id" :
+									predicate.getExpressions().add(builder.equal(root.get("id"), value));
+								case "assetName" :
 									// builder.upper for PostgreSQL
-									predicate.getExpressions().add(builder.like(builder.upper(root.join("businessPartner").<String>get("bpName")), String.format("%%%s%%", value.toString().toUpperCase())));
+									predicate.getExpressions().add(builder.like(builder.upper(root.<String>get("assetName")), String.format("%%%s%%", value.toString().toUpperCase())));
 									break;
 								case "corporateCode" :
 									predicate.getExpressions().add(builder.equal(root.join("corporate").<String>get("corporateCode"), value.toString()));
 									break;
 								case "_all" :
-									predicate.getExpressions().add(builder.like(builder.upper(root.join("businessPartner").<String>get("bpName")), String.format("%%%s%%", value.toString().toUpperCase())));
+									predicate.getExpressions().add(builder.like(builder.upper(root.<String>get("assetName")), String.format("%%%s%%", value.toString().toUpperCase())));
 									break;
 								default :
 									break;
