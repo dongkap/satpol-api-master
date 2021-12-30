@@ -104,7 +104,7 @@ public class ParameterI18nImplService extends CommonService {
 		if (request.getParameterValues() != null && request.getParameterCode() != null && request.getParameterGroupCode() != null) {
 			ParameterGroupEntity paramGroup = parameterGroupRepo.findByParameterGroupCode(request.getParameterGroupCode());
 			if (paramGroup != null) {
-				List<ParameterI18nDto> result = null;
+				List<ParameterI18nDto> publishDto = null;
 				ParameterEntity param = parameterRepo.findByParameterCode(request.getParameterCode());
 				if (param == null) {
 					param = new ParameterEntity();
@@ -123,7 +123,7 @@ public class ParameterI18nImplService extends CommonService {
 					param.setParameterI18n(parameterI18ns);
 					param = parameterRepo.saveAndFlush(param);
 				} else {
-					result = new ArrayList<ParameterI18nDto>();
+					publishDto = new ArrayList<ParameterI18nDto>();
 					for(String localeCode: request.getParameterValues().keySet()) {
 						ParameterI18nEntity paramI18n = parameterI18nRepo.findByParameter_ParameterCodeAndLocaleCode(request.getParameterCode(), localeCode);
 						if (param == null) {
@@ -141,10 +141,10 @@ public class ParameterI18nImplService extends CommonService {
 						param18nDto.setParameterI18nUUID(paramI18n.getId());
 						param18nDto.setParameterValue(paramI18n.getParameterValue());
 						param18nDto.setLocale(paramI18n.getLocaleCode());
-						result.add(param18nDto);
+						publishDto.add(param18nDto);
 					}
 				}
-				return result;
+				return publishDto;
 			} else {
 				throw new SystemErrorException(ErrorCode.ERR_SYS0404);
 			}

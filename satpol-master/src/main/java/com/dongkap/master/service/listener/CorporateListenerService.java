@@ -41,14 +41,38 @@ public class CorporateListenerService extends CommonStreamListener<CommonStreamM
         	for(Object data: value.getDatas()) {
 	        	if(data instanceof CorporateDto) {
 	        		CorporateDto request = (CorporateDto) data;
-	        		CorporateEntity corporate = corporateRepo.findById(request.getId()).orElse(null);
-	        		if(corporate != null && value.getStatus().equalsIgnoreCase(ParameterStatic.UPDATE_DATA)) {
-	        			corporate.setCorporateCode(request.getCorporateCode());
-	        			corporate.setCorporateName(request.getCorporateName());
-		        		corporateRepo.save(corporate);
+	        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.PERSIST_DATA)) {
+	        			this.persist(request);
+	        		}
+	        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.DELETE_DATA)) {
+		        		this.delete(request);
 	        		}
 	        	}
 	        }
         }
+	}
+	
+	public void persist(CorporateDto request) {
+		CorporateEntity corporate = new CorporateEntity(); 
+		corporate.setId(request.getId());
+		corporate.setCorporateCode(request.getCorporateCode());
+		corporate.setCorporateName(request.getCorporateName());
+		try {
+    		corporateRepo.saveAndFlush(corporate);
+		} catch (Exception e) {
+			LOGGER.warn("Stream Persist : {}", e.getMessage());
+		}
+	}
+
+	public void delete(CorporateDto request) {
+		CorporateEntity corporate = corporateRepo.findById(request.getId()).orElse(null);
+		try {
+			if(corporate != null) {
+				corporate.setActive(false);
+				corporateRepo.save(corporate);	
+			}
+		} catch (Exception e) {
+			LOGGER.warn("Stream Delete : {}", e.getMessage());
+		}
 	}
 }

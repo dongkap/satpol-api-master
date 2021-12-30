@@ -95,13 +95,12 @@ public class BusinessPartnerImplService extends CommonService {
 	
 	@Transactional
 	@PublishStream(key = StreamKeyStatic.BUSINESS_PARTNER, status = ParameterStatic.PERSIST_DATA)
-	public List<BusinessPartnerDto> postBusinessPartner(Map<String, Object> additionalInfo, B2BDto request) throws Exception {
+	public List<B2BDto> postBusinessPartner(Map<String, Object> additionalInfo, B2BDto request) throws Exception {
 		if(additionalInfo.get("corporate_code") == null) {
 			throw new SystemErrorException(ErrorCode.ERR_SYS0001);
 		}
 		B2BEntity b2b = this.b2bRepo.findByIdAndCorporate_CorporateCode(request.getId(), additionalInfo.get("corporate_code").toString());
 		BusinessPartnerEntity businessPartner = new BusinessPartnerEntity();
-		List<BusinessPartnerDto> result = null;
 		if (b2b == null) {
 			CorporateEntity corporate = corporateRepo.findByCorporateCode(additionalInfo.get("corporate_code").toString());
 			if(corporate == null) {
@@ -113,11 +112,6 @@ public class BusinessPartnerImplService extends CommonService {
 			b2b.setCorporate(corporate);
 		} else {
 			businessPartner = b2b.getBusinessPartner();
-			BusinessPartnerDto businessPartnerDto = new BusinessPartnerDto();
-			businessPartnerDto.setId(b2b.getBusinessPartner().getId());
-			businessPartnerDto.setBpName(b2b.getBusinessPartner().getBpName());
-			result = new ArrayList<BusinessPartnerDto>();
-			result.add(businessPartnerDto);
 		}
 		b2b.setB2bNonExpired(request.getB2bNonExpired());
 		b2b.setExpiredTime(request.getExpiredTime());
@@ -127,8 +121,21 @@ public class BusinessPartnerImplService extends CommonService {
 		businessPartner.setTelpNumber(request.getBusinessPartner().getTelpNumber());
 		businessPartner.setFaxNumber(request.getBusinessPartner().getFaxNumber());
 		b2b.setBusinessPartner(businessPartner);
-		b2bRepo.saveAndFlush(b2b);
-		return result;
+		b2b = b2bRepo.saveAndFlush(b2b);
+
+		request.setId(b2b.getId());
+		BusinessPartnerDto businessPartnerDto = new BusinessPartnerDto();
+		businessPartnerDto.setId(b2b.getBusinessPartner().getId());
+		businessPartnerDto.setBpName(b2b.getBusinessPartner().getBpName());
+		request.setBusinessPartner(businessPartnerDto);
+		CorporateDto corporateDto = new CorporateDto();
+		corporateDto.setId(b2b.getCorporate().getId());
+		corporateDto.setCorporateCode(b2b.getCorporate().getCorporateCode());
+		corporateDto.setCorporateName(b2b.getCorporate().getCorporateName());
+		request.setCorporate(corporateDto);
+		List<B2BDto> publishDto = new ArrayList<B2BDto>();
+		publishDto.add(request);
+		return publishDto;
 	}
 
 }

@@ -22,6 +22,7 @@ import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.AssetDto;
 import com.dongkap.dto.master.BusinessPartnerDto;
+import com.dongkap.dto.security.CorporateDto;
 import com.dongkap.dto.select.SelectDto;
 import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.common.CommonService;
@@ -108,7 +109,6 @@ public class AssetImplService extends CommonService {
 			businessPartner = this.businessPartnerRepo.findById(request.getBusinessPartner().getId()).orElse(null);
 		}
 		AssetEntity asset = this.assetRepo.findByIdAndCorporate_CorporateCode(request.getId(), additionalInfo.get("corporate_code").toString());
-		List<AssetDto> result = null;
 		if (asset == null) {
 			CorporateEntity corporate = corporateRepo.findByCorporateCode(additionalInfo.get("corporate_code").toString());
 			if(corporate == null) {
@@ -119,18 +119,32 @@ public class AssetImplService extends CommonService {
 
 			asset = new AssetEntity();
 			asset.setCorporate(corporate);
-		} else {
-			request.setId(asset.getId());
-			result = new ArrayList<AssetDto>();
-			result.add(request);
 		}
 		asset.setAssetName(request.getAssetName());
 		asset.setAssetCondition(request.getAssetCondition());
 		asset.setQuantity(request.getQuantity());
 		asset.setDescription(request.getDescription());
 		asset.setBusinessPartner(businessPartner);
-		assetRepo.saveAndFlush(asset);
-		return result;
+		asset = assetRepo.saveAndFlush(asset);
+		
+		List<AssetDto> publishDto = new ArrayList<AssetDto>();
+		request.setId(asset.getId());
+		request.setAssetName(asset.getAssetName());
+		if(asset.getBusinessPartner() != null) {
+			BusinessPartnerDto businessPartnerDto = new BusinessPartnerDto();
+			businessPartnerDto.setId(asset.getBusinessPartner().getId());
+			businessPartnerDto.setBpName(asset.getBusinessPartner().getBpName());
+			request.setBusinessPartner(businessPartnerDto);
+		}
+		if(asset.getCorporate() != null) {
+			CorporateDto corporateDto = new CorporateDto();
+			corporateDto.setId(asset.getCorporate().getId());
+			corporateDto.setCorporateCode(asset.getCorporate().getCorporateCode());
+			corporateDto.setCorporateName(asset.getCorporate().getCorporateName());
+			request.setCorporate(corporateDto);
+		}
+		publishDto.add(request);
+		return publishDto;
 	}
 
 	@PublishStream(key = StreamKeyStatic.ASSET, status = ParameterStatic.DELETE_DATA)

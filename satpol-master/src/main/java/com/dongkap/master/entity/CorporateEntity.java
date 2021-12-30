@@ -7,14 +7,12 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.GenericGenerator;
 
 import com.dongkap.common.utils.SchemaDatabase;
 
@@ -39,8 +37,6 @@ public class CorporateEntity implements Serializable {
 	private static final long serialVersionUID = -1932022761237540822L;
 
 	@Id
-	@GenericGenerator(name = "uuid", strategy = "uuid2")
-	@GeneratedValue(generator = "uuid")
 	@Column(name = "corporate_uuid", nullable = false, unique = true)
 	private String id;
 
@@ -49,6 +45,9 @@ public class CorporateEntity implements Serializable {
 
 	@Column(name = "corporate_name", nullable = false)
 	private String corporateName;
+
+	@Column(name = "is_active", nullable = false)
+	private Boolean active = true;
 
 	@ManyToMany(mappedBy = "corporate", targetEntity = B2BEntity.class, fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
