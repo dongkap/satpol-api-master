@@ -148,7 +148,7 @@ public class AssetImplService extends CommonService {
 	}
 
 	@PublishStream(key = StreamKeyStatic.ASSET, status = ParameterStatic.DELETE_DATA)
-	public void deleteAssets(List<String> ids) throws Exception {
+	public List<AssetDto> deleteAssets(List<String> ids) throws Exception {
 		List<AssetEntity> assets = assetRepo.findByIdIn(ids);
 		try {
 			assetRepo.deleteInBatch(assets);			
@@ -157,6 +157,27 @@ public class AssetImplService extends CommonService {
 		} catch (ConstraintViolationException e) {
 			throw new SystemErrorException(ErrorCode.ERR_SCR0009);
 		}
+		List<AssetDto> publishDto = new ArrayList<AssetDto>();		
+		assets.forEach(entity->{
+			AssetDto asset = new AssetDto();
+			asset.setId(entity.getId());
+			asset.setAssetName(entity.getAssetName());
+			if(entity.getBusinessPartner() != null) {
+				BusinessPartnerDto businessPartnerDto = new BusinessPartnerDto();
+				businessPartnerDto.setId(entity.getBusinessPartner().getId());
+				businessPartnerDto.setBpName(entity.getBusinessPartner().getBpName());
+				asset.setBusinessPartner(businessPartnerDto);
+			}
+			if(entity.getCorporate() != null) {
+				CorporateDto corporateDto = new CorporateDto();
+				corporateDto.setId(entity.getCorporate().getId());
+				corporateDto.setCorporateCode(entity.getCorporate().getCorporateCode());
+				corporateDto.setCorporateName(entity.getCorporate().getCorporateName());
+				asset.setCorporate(corporateDto);
+			}
+			publishDto.add(asset);
+		});
+		return publishDto;
 	}
 
 }

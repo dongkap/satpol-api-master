@@ -1,10 +1,13 @@
 package com.dongkap.master.service.listener;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dongkap.common.stream.CommonStreamListener;
@@ -31,46 +34,64 @@ public class CorporateListenerService extends CommonStreamListener<CommonStreamM
 	
 	@Override
     @SneakyThrows
-    @Transactional
+	@Transactional(noRollbackFor = { ConstraintViolationException.class }, propagation = Propagation.REQUIRES_NEW)
 	public void onMessage(ObjectRecord<String, CommonStreamMessageDto> message) {
         String stream = message.getStream();
         RecordId id = message.getId();
 		LOGGER.info("A message was received stream: [{}], id: [{}]", stream, id);
-        CommonStreamMessageDto value = message.getValue();
-        if(value != null) {
-        	for(Object data: value.getDatas()) {
-	        	if(data instanceof CorporateDto) {
-	        		CorporateDto request = (CorporateDto) data;
-	        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.PERSIST_DATA)) {
-	        			this.persist(request);
-	        		}
-	        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.DELETE_DATA)) {
-		        		this.delete(request);
-	        		}
-	        	}
-	        }
-        }
+		try {
+	        CommonStreamMessageDto value = message.getValue();
+	        if(value != null) {
+	        	for(Object data: value.getDatas()) {
+		        	if(data instanceof CorporateDto) {
+		        		CorporateDto request = (CorporateDto) data;
+		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.PERSIST_DATA)) {
+		        			this.persist(request);
+		        		}
+		        		if(value.getStatus().equalsIgnoreCase(ParameterStatic.DELETE_DATA)) {
+			        		this.delete(request);
+		        		}
+		        	}
+		        }
+	        }			
+		} catch (Exception e) {
+			LOGGER.warn("Stream On Message : {}", e.getMessage());
+		}
 	}
 	
 	public void persist(CorporateDto request) {
-		CorporateEntity corporate = new CorporateEntity(); 
-		corporate.setId(request.getId());
-		corporate.setCorporateCode(request.getCorporateCode());
-		corporate.setCorporateName(request.getCorporateName());
 		try {
+			CorporateEntity corporate = corporateRepo.findByCorporateCode(request.getCorporateCode());
+			if(corporate != null) {
+				if(!corporate.getId().equals(request.getId())) {
+					return;
+				}
+			} else {
+				corporate = new CorporateEntity();	
+			}
+			corporate.setId(request.getId());
+			corporate.setCorporateCode(request.getCorporateCode());
+			corporate.setCorporateName(request.getCorporateName());
     		corporateRepo.saveAndFlush(corporate);
+		} catch (DataIntegrityViolationException e) {
+			LOGGER.warn("Stream Persist : {}", e.getMessage());
+		} catch (ConstraintViolationException e) {
+			LOGGER.warn("Stream Persist : {}", e.getMessage());
 		} catch (Exception e) {
 			LOGGER.warn("Stream Persist : {}", e.getMessage());
 		}
 	}
 
 	public void delete(CorporateDto request) {
-		CorporateEntity corporate = corporateRepo.findById(request.getId()).orElse(null);
 		try {
+			CorporateEntity corporate = corporateRepo.findByCorporateCode(request.getCorporateCode());
 			if(corporate != null) {
-				corporate.setActive(false);
-				corporateRepo.save(corporate);	
+				corporateRepo.delete(corporate);
 			}
+		} catch (DataIntegrityViolationException e) {
+			LOGGER.warn("Stream Delete : {}", e.getMessage());
+		} catch (ConstraintViolationException e) {
+			LOGGER.warn("Stream Delete : {}", e.getMessage());
 		} catch (Exception e) {
 			LOGGER.warn("Stream Delete : {}", e.getMessage());
 		}
