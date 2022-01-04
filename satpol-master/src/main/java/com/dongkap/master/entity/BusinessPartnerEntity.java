@@ -9,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -62,7 +63,7 @@ public class BusinessPartnerEntity extends BaseAuditEntity {
 	@Fetch(FetchMode.SELECT)
 	private Set<B2BEntity> b2bs = new HashSet<B2BEntity>();
 
-	@ManyToMany(mappedBy = "businessPartner", targetEntity = AssetEntity.class, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "businessPartner", targetEntity = AssetEntity.class, fetch = FetchType.LAZY)
 	@Fetch(FetchMode.SELECT)
 	private Set<AssetEntity> assets = new HashSet<AssetEntity>();
 

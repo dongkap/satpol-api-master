@@ -6,7 +6,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -51,11 +51,11 @@ public class AssetEntity extends BaseAuditEntity {
 	@Column(name = "description")
 	private String description;
 
-	@OneToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY)
+	@ManyToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "bp_uuid", nullable = true)
 	private BusinessPartnerEntity businessPartner;
 
-	@OneToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY)
+	@ManyToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "corporate_uuid", nullable = false)
 	private CorporateEntity corporate;
 

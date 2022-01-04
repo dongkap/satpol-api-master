@@ -36,10 +36,10 @@ public class CorporateListenerService extends CommonStreamListener<CommonStreamM
     @SneakyThrows
 	@Transactional(noRollbackFor = { ConstraintViolationException.class }, propagation = Propagation.REQUIRES_NEW)
 	public void onMessage(ObjectRecord<String, CommonStreamMessageDto> message) {
-        String stream = message.getStream();
-        RecordId id = message.getId();
-		LOGGER.info("A message was received stream: [{}], id: [{}]", stream, id);
 		try {
+	        String stream = message.getStream();
+	        RecordId id = message.getId();
+			LOGGER.info("A message was received stream: [{}], id: [{}]", stream, id);
 	        CommonStreamMessageDto value = message.getValue();
 	        if(value != null) {
 	        	for(Object data: value.getDatas()) {
@@ -64,7 +64,7 @@ public class CorporateListenerService extends CommonStreamListener<CommonStreamM
 			CorporateEntity corporate = corporateRepo.findByCorporateCode(request.getCorporateCode());
 			if(corporate != null) {
 				if(!corporate.getId().equals(request.getId())) {
-					return;
+					corporateRepo.delete(corporate);
 				}
 			} else {
 				corporate = new CorporateEntity();	

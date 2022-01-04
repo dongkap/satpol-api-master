@@ -113,6 +113,7 @@ public class AssetImplService extends CommonService {
 			CorporateEntity corporate = corporateRepo.findByCorporateCode(additionalInfo.get("corporate_code").toString());
 			if(corporate == null) {
 				corporate = new CorporateEntity();
+				corporate.setId(additionalInfo.get("corporate_uuid").toString());
 				corporate.setCorporateCode(additionalInfo.get("corporate_code").toString());
 				corporate.setCorporateName(additionalInfo.get("corporate_name").toString());
 			}
