@@ -8,6 +8,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ import com.dongkap.master.dao.specification.AssetSpecification;
 import com.dongkap.master.entity.AssetEntity;
 import com.dongkap.master.entity.BusinessPartnerEntity;
 import com.dongkap.master.entity.CorporateEntity;
+import com.dongkap.master.entity.ParameterI18nEntity;
 
 @Service("assetService")
 public class AssetImplService extends CommonService {
@@ -47,6 +49,9 @@ public class AssetImplService extends CommonService {
 
 	@Autowired
 	private BusinessPartnerRepo businessPartnerRepo;
+
+	@Value("${dongkap.locale}")
+	private String locale;
 
 	@Transactional
 	public SelectResponseDto getSelect(Map<String, Object> additionalInfo, FilterDto filter) throws Exception {
@@ -65,7 +70,10 @@ public class AssetImplService extends CommonService {
 	}
 
 	@Transactional
-	public CommonResponseDto<AssetDto> getDatatable(Map<String, Object> additionalInfo, FilterDto filter) throws Exception {
+	public CommonResponseDto<AssetDto> getDatatable(Map<String, Object> additionalInfo, FilterDto filter, String p_locale) throws Exception {
+		if(p_locale == null) {
+			p_locale = this.locale;
+		}
 		if(additionalInfo.get("corporate_code") == null) {
 			throw new SystemErrorException(ErrorCode.ERR_SYS0001);
 		}
@@ -74,11 +82,11 @@ public class AssetImplService extends CommonService {
 		final CommonResponseDto<AssetDto> response = new CommonResponseDto<AssetDto>();
 		response.setTotalFiltered(Long.valueOf(asset.getContent().size()));
 		response.setTotalRecord(assetRepo.count(AssetSpecification.getDatatable(filter.getKeyword())));
+		final String locale = p_locale;
 		asset.getContent().forEach(value -> {
 			AssetDto temp = new AssetDto();
 			temp.setId(value.getId());
 			temp.setAssetName(value.getAssetName());
-			temp.setAssetCondition(value.getAssetCondition());
 			temp.setQuantity(value.getQuantity());
 			temp.setDescription(value.getDescription());
 			temp.setActive(value.getActive());
@@ -87,11 +95,21 @@ public class AssetImplService extends CommonService {
 			temp.setCreatedBy(value.getCreatedBy());
 			temp.setModifiedDate(value.getModifiedDate());
 			temp.setModifiedBy(value.getModifiedBy());
+			temp.setAssetConditionCode(value.getAssetCondition());
+			if(value.getCondition() != null) {
+				ParameterI18nEntity parameter = value.getCondition().getParameterI18n().stream().filter(paramI8n->paramI8n.getLocaleCode().equalsIgnoreCase(locale)).findFirst().orElse(null);
+				if(parameter != null) {
+					temp.setAssetConditionValue(parameter.getParameterValue());	
+				}
+			}
 			if(value.getBusinessPartner() != null) {
 				BusinessPartnerDto businessPartnerTemp = new BusinessPartnerDto();
 				businessPartnerTemp.setId(value.getBusinessPartner().getId());
 				businessPartnerTemp.setBpName(value.getBusinessPartner().getBpName());
 				temp.setBusinessPartner(businessPartnerTemp);
+				temp.setLocation(value.getBusinessPartner().getBpName());
+			} else {
+				temp.setLocation(value.getCorporate().getCorporateName());
 			}
 			response.getData().add(temp);
 		});
@@ -122,7 +140,7 @@ public class AssetImplService extends CommonService {
 			asset.setCorporate(corporate);
 		}
 		asset.setAssetName(request.getAssetName());
-		asset.setAssetCondition(request.getAssetCondition());
+		asset.setAssetCondition(request.getAssetConditionCode());
 		asset.setQuantity(request.getQuantity());
 		asset.setDescription(request.getDescription());
 		asset.setBusinessPartner(businessPartner);

@@ -40,9 +40,10 @@ public class AssetController extends BaseControllerException {
 
 	@RequestMapping(value = "/vw/auth/datatable/asset/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CommonResponseDto<AssetDto>> getDatatableAsset(Authentication authentication,
-			@RequestBody(required = true) FilterDto filter) throws Exception {
+			@RequestBody(required = true) FilterDto filter,
+			@RequestHeader(name = HttpHeaders.ACCEPT_LANGUAGE, required = false) String locale) throws Exception {
 		Map<String, Object> additionalInfo = this.getAdditionalInformation(authentication);
-		return new ResponseEntity<CommonResponseDto<AssetDto>>(this.assetService.getDatatable(additionalInfo, filter), HttpStatus.OK);
+		return new ResponseEntity<CommonResponseDto<AssetDto>>(this.assetService.getDatatable(additionalInfo, filter, locale), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/vw/auth/select/asset/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

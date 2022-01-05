@@ -1,5 +1,6 @@
 package com.dongkap.master.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,8 +23,8 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper=false, exclude={"businessPartner", "corporate"})
-@ToString(exclude={"businessPartner", "corporate"})
+@EqualsAndHashCode(callSuper=false, exclude={"condition", "businessPartner", "corporate"})
+@ToString(exclude={"condition", "businessPartner", "corporate"})
 @Entity
 @Table(name = "mst_asset", schema = SchemaDatabase.MASTER)
 public class AssetEntity extends BaseAuditEntity {
@@ -45,17 +46,21 @@ public class AssetEntity extends BaseAuditEntity {
 	@Column(name = "asset_condition", nullable = false)
 	private String assetCondition;
 
+	@ManyToOne(targetEntity = ParameterEntity.class, fetch = FetchType.EAGER)
+	@JoinColumn(name = "asset_condition", nullable = false, referencedColumnName = "parameter_code", insertable = false, updatable = false)
+	private ParameterEntity condition;
+
 	@Column(name = "quantity", nullable = false)
 	private Integer quantity;
 
 	@Column(name = "description")
 	private String description;
 
-	@ManyToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY)
+	@ManyToOne(targetEntity = BusinessPartnerEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "bp_uuid", nullable = true)
 	private BusinessPartnerEntity businessPartner;
 
-	@ManyToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY)
+	@ManyToOne(targetEntity = CorporateEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "corporate_uuid", nullable = false)
 	private CorporateEntity corporate;
 
