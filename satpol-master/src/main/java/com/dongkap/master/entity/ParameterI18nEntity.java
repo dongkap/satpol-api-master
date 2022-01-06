@@ -1,5 +1,6 @@
 package com.dongkap.master.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -45,7 +46,7 @@ public class ParameterI18nEntity extends BaseAuditEntity {
 	@Column(name = "locale_code")
 	private String localeCode;
 
-	@ManyToOne(targetEntity = ParameterEntity.class, fetch = FetchType.EAGER)
+	@ManyToOne(targetEntity = ParameterEntity.class, fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
 	@JoinColumn(name = "parameter_uuid", nullable = false, updatable = false)
 	private ParameterEntity parameter;
 

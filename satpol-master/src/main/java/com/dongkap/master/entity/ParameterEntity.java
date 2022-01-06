@@ -49,7 +49,7 @@ public class ParameterEntity extends BaseAuditEntity {
 	@Column(name = "parameter_code", unique = true)
 	private String parameterCode;
 	
-	@OneToMany(mappedBy = "parameter", targetEntity = ParameterI18nEntity.class, fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy = "parameter", targetEntity = ParameterI18nEntity.class, fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
 	@Fetch(FetchMode.SELECT)
 	private Set<ParameterI18nEntity> parameterI18n = new HashSet<ParameterI18nEntity>();
 

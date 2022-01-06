@@ -2,11 +2,10 @@ package com.dongkap.master.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -99,50 +98,51 @@ public class ParameterI18nImplService extends CommonService {
 	}
 	
 	@Transactional
-	@PublishStream(key = StreamKeyStatic.PARAMETER, status = ParameterStatic.UPDATE_DATA)
+	@PublishStream(key = StreamKeyStatic.PARAMETER, status = ParameterStatic.PERSIST_DATA)
 	public List<ParameterI18nDto> postParameterI18n(ParameterRequestDto request, String username) throws Exception {
 		if (request.getParameterValues() != null && request.getParameterCode() != null && request.getParameterGroupCode() != null) {
 			ParameterGroupEntity paramGroup = parameterGroupRepo.findByParameterGroupCode(request.getParameterGroupCode());
 			if (paramGroup != null) {
-				List<ParameterI18nDto> publishDto = null;
+				List<ParameterI18nDto> publishDto = new ArrayList<ParameterI18nDto>();
+				List<ParameterI18nEntity> listI18n = new ArrayList<ParameterI18nEntity>();
 				ParameterEntity param = parameterRepo.findByParameterCode(request.getParameterCode());
 				if (param == null) {
 					param = new ParameterEntity();
 					param.setParameterGroup(paramGroup);
 					param.setParameterCode(request.getParameterCode());
-					param.setCreatedBy(username);
-					param.setCreatedDate(new Date());
-					Set<ParameterI18nEntity> parameterI18ns = new HashSet<ParameterI18nEntity>();
 					for(String localeCode: request.getParameterValues().keySet()) {
-							ParameterI18nEntity paramI18n = new ParameterI18nEntity();
-							paramI18n.setLocaleCode(localeCode);
-							paramI18n.setParameterValue(request.getParameterValues().get(localeCode));
-							paramI18n.setParameter(param);
-							parameterI18ns.add(paramI18n);
-					}
-					param.setParameterI18n(parameterI18ns);
-					param = parameterRepo.saveAndFlush(param);
-				} else {
-					publishDto = new ArrayList<ParameterI18nDto>();
-					for(String localeCode: request.getParameterValues().keySet()) {
-						ParameterI18nEntity paramI18n = parameterI18nRepo.findByParameter_ParameterCodeAndLocaleCode(request.getParameterCode(), localeCode);
-						if (param == null) {
-							paramI18n = new ParameterI18nEntity();
-						}
+						ParameterI18nEntity paramI18n = new ParameterI18nEntity();
 						paramI18n.setLocaleCode(localeCode);
 						paramI18n.setParameterValue(request.getParameterValues().get(localeCode));
+						param.getParameterI18n().add(paramI18n);
 						paramI18n.setParameter(param);
-						parameterI18nRepo.saveAndFlush(paramI18n);
-
-						ParameterI18nDto param18nDto = new ParameterI18nDto();
-						param18nDto.setParameterCode(param.getParameterCode());
-						param18nDto.setParameterGroupCode(param.getParameterGroup().getParameterGroupCode());
-						param18nDto.setParameterGroupName(param.getParameterGroup().getParameterGroupName());
-						param18nDto.setParameterI18nUUID(paramI18n.getId());
-						param18nDto.setParameterValue(paramI18n.getParameterValue());
-						param18nDto.setLocale(paramI18n.getLocaleCode());
-						publishDto.add(param18nDto);
 					}
+					/**
+					 * one flush for multiple language
+					 */
+					param = parameterRepo.saveAndFlush(param);
+					listI18n = param.getParameterI18n().stream().collect(Collectors.toList());
+				} else {
+					listI18n = param.getParameterI18n().stream().collect(Collectors.toList());
+					for(ParameterI18nEntity paramI18n : listI18n) {
+						if(!paramI18n.getParameterValue().equals(request.getParameterValues().get(paramI18n.getLocaleCode()))) {
+							paramI18n.getParameter().setModifiedBy(username);
+							paramI18n.getParameter().setModifiedDate(new Date());	
+						}
+						paramI18n.setParameterValue(request.getParameterValues().get(paramI18n.getLocaleCode()));
+						paramI18n = parameterI18nRepo.saveAndFlush(paramI18n);
+					}
+				}
+				for(ParameterI18nEntity paramI18n : listI18n) {
+					ParameterI18nDto param18nDto = new ParameterI18nDto();
+					param18nDto.setParameterId(paramI18n.getParameter().getId());
+					param18nDto.setParameterCode(paramI18n.getParameter().getParameterCode());
+					param18nDto.setParameterGroupCode(paramI18n.getParameter().getParameterGroup().getParameterGroupCode());
+					param18nDto.setParameterGroupName(paramI18n.getParameter().getParameterGroup().getParameterGroupName());
+					param18nDto.setParameterI18nId(paramI18n.getId());
+					param18nDto.setParameterValue(paramI18n.getParameterValue());
+					param18nDto.setLocale(paramI18n.getLocaleCode());
+					publishDto.add(param18nDto);
 				}
 				return publishDto;
 			} else {
