@@ -21,10 +21,11 @@ public class CommonService {;
         if (order != null && !order.isEmpty()) {
             Sort sort = null;
             for (Map.Entry<String, List<String>> direction : order.entrySet()) {
+            	String[] propertiesType = new String[direction.getValue().size()];
                 if (Direction.ASC.toString().equalsIgnoreCase(direction.getKey())) {
-                    sort = Sort.by(Direction.ASC, (String[]) direction.getValue().toArray());
+                    sort = Sort.by(Direction.ASC, direction.getValue().toArray(propertiesType));
                 } else {
-                    sort = Sort.by(Direction.DESC, (String[]) direction.getValue().toArray());
+                    sort = Sort.by(Direction.DESC, direction.getValue().toArray(propertiesType));
                 }
             }
             return PageRequest.of(page, limit, sort);
