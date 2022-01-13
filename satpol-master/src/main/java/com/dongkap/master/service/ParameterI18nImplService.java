@@ -25,6 +25,7 @@ import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.ParameterI18nDto;
 import com.dongkap.dto.master.ParameterRequestDto;
+import com.dongkap.dto.radio.RadioDto;
 import com.dongkap.dto.select.SelectDto;
 import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.common.CommonService;
@@ -198,6 +199,24 @@ public class ParameterI18nImplService extends CommonService {
 		response.setTotalRecord(parameterI18nRepo.count(ParameterI18nSpecification.getSelect(filter.getKeyword())));
 		parameter.getContent().forEach(value -> {
 			response.getData().add(new SelectDto(value.getParameterValue(), value.getParameter().getParameterCode(), !value.getParameter().getActive(), null));
+		});
+		return response;
+	}
+
+	public List<RadioDto> getRadio(FilterDto filter, String locale) throws Exception {
+		if(locale == null) {
+    		locale = this.locale;
+		} else {
+	    	final Locale i18n = Locale.forLanguageTag(locale);
+	    	if(i18n.getDisplayLanguage().isEmpty()) {
+	    		locale = this.locale;
+	    	}	
+		}
+    	filter.getKeyword().put("localeCode", locale);
+		Page<ParameterI18nEntity> parameter = parameterI18nRepo.findAll(ParameterI18nSpecification.getSelect(filter.getKeyword()), page(filter.getOrder(), filter.getOffset(), filter.getLimit()));
+		final List<RadioDto> response = new ArrayList<RadioDto>();
+		parameter.getContent().forEach(value -> {
+			response.add(new RadioDto(value.getParameterValue(), value.getParameter().getParameterCode(), !value.getParameter().getActive(), null));
 		});
 		return response;
 	}

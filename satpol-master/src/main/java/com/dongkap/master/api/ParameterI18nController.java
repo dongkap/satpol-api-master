@@ -24,6 +24,7 @@ import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.ParameterI18nDto;
 import com.dongkap.dto.master.ParameterRequestDto;
+import com.dongkap.dto.radio.RadioDto;
 import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.service.ParameterI18nImplService;
 
@@ -45,6 +46,13 @@ public class ParameterI18nController extends BaseControllerException {
 			@RequestBody(required = true) FilterDto filter,
 			@RequestHeader(name = HttpHeaders.ACCEPT_LANGUAGE, required = false) String locale) throws Exception {
 		return new ResponseEntity<SelectResponseDto>(this.parameterI18nService.getSelect(filter, locale), HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/vw/post/radio/parameter-i18n/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<RadioDto>> getRadioParameter(Authentication authentication,
+			@RequestBody(required = true) FilterDto filter,
+			@RequestHeader(name = HttpHeaders.ACCEPT_LANGUAGE, required = false) String locale) throws Exception {
+		return new ResponseEntity<List<RadioDto>>(this.parameterI18nService.getRadio(filter, locale), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/vw/auth/all/parameter-i18n/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
