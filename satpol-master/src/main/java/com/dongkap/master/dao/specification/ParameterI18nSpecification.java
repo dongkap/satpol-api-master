@@ -40,6 +40,9 @@ public class ParameterI18nSpecification {
 									// builder.upper for PostgreSQL
 									predicate.getExpressions().add(builder.like(builder.upper(root.<String>get("parameterValue")), String.format("%%%s%%", value.toString().toUpperCase())));
 									break;
+								case "parameterCodeNotIn" :
+									predicate = builder.and(predicate, builder.notEqual(root.join("parameter").<String>get("parameterCode"), value.toString()));
+									break;
 								case "localeCode" :
 									predicate = builder.and(predicate, builder.equal(root.<String>get(key), value.toString()));
 									break;
