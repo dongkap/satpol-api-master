@@ -21,6 +21,7 @@ import com.dongkap.common.stream.PublishStream;
 import com.dongkap.common.utils.ErrorCode;
 import com.dongkap.common.utils.ParameterStatic;
 import com.dongkap.common.utils.StreamKeyStatic;
+import com.dongkap.dto.checkbox.CheckboxDto;
 import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.ParameterI18nDto;
@@ -217,6 +218,24 @@ public class ParameterI18nImplService extends CommonService {
 		final List<RadioDto> response = new ArrayList<RadioDto>();
 		parameter.getContent().forEach(value -> {
 			response.add(new RadioDto(value.getParameterValue(), value.getParameter().getParameterCode(), !value.getParameter().getActive(), null));
+		});
+		return response;
+	}
+
+	public List<CheckboxDto> getCheckbox(FilterDto filter, String locale) throws Exception {
+		if(locale == null) {
+    		locale = this.locale;
+		} else {
+	    	final Locale i18n = Locale.forLanguageTag(locale);
+	    	if(i18n.getDisplayLanguage().isEmpty()) {
+	    		locale = this.locale;
+	    	}	
+		}
+    	filter.getKeyword().put("localeCode", locale);
+		Page<ParameterI18nEntity> parameter = parameterI18nRepo.findAll(ParameterI18nSpecification.getSelect(filter.getKeyword()), page(filter.getOrder(), filter.getOffset(), filter.getLimit()));
+		final List<CheckboxDto> response = new ArrayList<CheckboxDto>();
+		parameter.getContent().forEach(value -> {
+			response.add(new CheckboxDto(value.getParameter().getParameterCode(), value.getParameterValue(), !value.getParameter().getActive(), null));
 		});
 		return response;
 	}

@@ -19,6 +19,7 @@ import com.dongkap.common.aspect.ResponseSuccess;
 import com.dongkap.common.exceptions.BaseControllerException;
 import com.dongkap.common.utils.ResourceCode;
 import com.dongkap.common.utils.SuccessCode;
+import com.dongkap.dto.checkbox.CheckboxDto;
 import com.dongkap.dto.common.ApiBaseResponse;
 import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
@@ -53,6 +54,13 @@ public class ParameterI18nController extends BaseControllerException {
 			@RequestBody(required = true) FilterDto filter,
 			@RequestHeader(name = HttpHeaders.ACCEPT_LANGUAGE, required = false) String locale) throws Exception {
 		return new ResponseEntity<List<RadioDto>>(this.parameterI18nService.getRadio(filter, locale), HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/vw/post/checkbox/parameter-i18n/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<CheckboxDto>> getCheckboxParameter(Authentication authentication,
+			@RequestBody(required = true) FilterDto filter,
+			@RequestHeader(name = HttpHeaders.ACCEPT_LANGUAGE, required = false) String locale) throws Exception {
+		return new ResponseEntity<List<CheckboxDto>>(this.parameterI18nService.getCheckbox(filter, locale), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/vw/auth/all/parameter-i18n/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
