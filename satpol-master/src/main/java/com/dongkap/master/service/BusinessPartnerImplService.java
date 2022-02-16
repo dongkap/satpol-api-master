@@ -25,6 +25,7 @@ import com.dongkap.dto.select.SelectDto;
 import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.common.CommonService;
 import com.dongkap.master.dao.B2BRepo;
+import com.dongkap.master.dao.BusinessPartnerRepo;
 import com.dongkap.master.dao.CorporateRepo;
 import com.dongkap.master.dao.specification.B2BSpecification;
 import com.dongkap.master.entity.B2BEntity;
@@ -38,6 +39,9 @@ public class BusinessPartnerImplService extends CommonService {
 
 	@Autowired
 	private B2BRepo b2bRepo;
+
+	@Autowired
+	private BusinessPartnerRepo businessPartnerRepo;
 
 	@Autowired
 	private CorporateRepo corporateRepo;
@@ -90,6 +94,28 @@ public class BusinessPartnerImplService extends CommonService {
 			b2bTemp.setCorporate(corporateTemp);
 			response.getData().add(b2bTemp);
 		});
+		return response;
+	}
+
+	@Transactional
+	public BusinessPartnerDto getBusinessPartner(Map<String, Object> additionalInfo, Map<String, Object> data) throws Exception {
+		if(data == null || data.isEmpty())
+			throw new SystemErrorException(ErrorCode.ERR_SYS0404);
+		String bpId = data.get("id").toString();		
+		BusinessPartnerEntity bp = businessPartnerRepo.findById(bpId).orElse(null);
+		BusinessPartnerDto response = new BusinessPartnerDto();
+		response.setId(bp.getId());
+		response.setBpName(bp.getBpName());
+		response.setEmail(bp.getEmail());
+		response.setAddress(bp.getAddress());
+		response.setTelpNumber(bp.getTelpNumber());
+		response.setFaxNumber(bp.getFaxNumber());
+		response.setActive(bp.getActive());
+		response.setVersion(bp.getVersion());
+		response.setCreatedDate(bp.getCreatedDate());
+		response.setCreatedBy(bp.getCreatedBy());
+		response.setModifiedDate(bp.getModifiedDate());
+		response.setModifiedBy(bp.getModifiedBy());
 		return response;
 	}
 	

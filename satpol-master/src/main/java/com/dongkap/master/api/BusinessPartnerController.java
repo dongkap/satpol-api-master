@@ -24,6 +24,7 @@ import com.dongkap.dto.common.ApiBaseResponse;
 import com.dongkap.dto.common.CommonResponseDto;
 import com.dongkap.dto.common.FilterDto;
 import com.dongkap.dto.master.B2BDto;
+import com.dongkap.dto.master.BusinessPartnerDto;
 import com.dongkap.dto.select.SelectResponseDto;
 import com.dongkap.master.service.BusinessPartnerImplService;
 
@@ -42,6 +43,13 @@ public class BusinessPartnerController extends BaseControllerException {
 			@RequestBody(required = true) FilterDto filter) throws Exception {
 		Map<String, Object> additionalInfo = this.getAdditionalInformation(authentication);
 		return new ResponseEntity<CommonResponseDto<B2BDto>>(this.businessPartnerService.getDatatable(additionalInfo, filter), HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/vw/auth/get/business-partner/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<BusinessPartnerDto> getBusinessPartner(Authentication authentication,
+			@RequestBody(required = true) Map<String, Object> data) throws Exception {
+		Map<String, Object> additionalInfo = this.getAdditionalInformation(authentication);
+		return new ResponseEntity<BusinessPartnerDto>(this.businessPartnerService.getBusinessPartner(additionalInfo, data), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/vw/auth/select/business-partner/v.1", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
